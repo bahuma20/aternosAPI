@@ -68,11 +68,11 @@ async function getQueue(page) {
     let time = await ph.getText(page, 'span.server-status-label-left');
     let people = await ph.getText(page, 'span.server-status-label-right.queue-position');
     if (time && people) {
-        people = people.split('/');
+        people = people.split(' / ');
         return {
-            time: time.replace('.ca', '').replace('min', '').trim() * 60,
-            position: people.lengh > 0 && people[0].trim() * 1,
-            waiting: people.lengh > 1 && people[1].trim() * 1
+            time: time.replace('ca.', '').replace('min', '').trim() * 60,
+            position: people.length > 0 && people[0].trim() * 1,
+            waiting: people.length > 1 && people[1].trim() * 1
         };
     } 
 }
@@ -215,7 +215,7 @@ function start(id, wait) {
             await ph.waitForFirst(page, to.start, si.started, si.waiting);
             await page.waitForTimeout(1000);
                         
-            if (wait && await ph.isVisible(si.waiting)) {
+            if (wait && await ph.isVisible(page, si.waiting)) {
                 const queue = await getQueue(page);
                 await page.waitForSelector('#confirm', {timeout:queue.time * 1000, visible:true});
                 await page.click('#confirm');
